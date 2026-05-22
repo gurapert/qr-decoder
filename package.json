@@ -2,7 +2,7 @@
   "name": "qr-decoder",
   "version": "1.0.0",
   "dependencies": {
-    "jimp": "^0.22.10",
+    "sharp": "^0.33.3",
     "jsqr": "^1.4.0"
   }
 }
