@@ -1,4 +1,4 @@
-const Jimp = require('jimp');
+const sharp = require('sharp');
 const jsQR = require('jsqr');
 
 export default async function handler(req, res) {
@@ -13,21 +13,19 @@ export default async function handler(req, res) {
     }
 
     const buffer = Buffer.from(image, 'base64');
-    const img = await Jimp.read(buffer);
     
-    const imageData = {
-      data: new Uint8ClampedArray(img.bitmap.data),
-      width: img.bitmap.width,
-      height: img.bitmap.height
-    };
+    const { data, info } = await sharp(buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
 
-    const code = jsQR(imageData.data, imageData.width, imageData.height);
-    
-    if (code) {
-      return res.status(200).json({ qr: code.data });
-    } else {
-      return res.status(200).json({ qr: '' });
-    }
+    const code = jsQR(
+      new Uint8ClampedArray(data),
+      info.width,
+      info.height
+    );
+
+    return res.status(200).json({ qr: code ? code.data : '' });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
